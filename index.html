@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mind Match - 55" Kiosk</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body { 
+    background: #1E293B; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; 
+    touch-action: none; 
+    font-family: 'Patrick Hand', cursive;
+  }
+  
+  #kiosk-app {
+    width: 1080px;
+    height: 1920px;
+    background: linear-gradient(90deg, #200515 50%, #070f24 50%); /* Concept 1 background applied globally */
+    position: relative;
+    transform-origin: center center;
+    box-shadow: 0 0 60px rgba(0,0,0,0.8);
+    overflow: hidden;
+    color: #FFFFFF;
+  }
+
+  .screen { 
+    display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; 
+    animation: fadeIn 0.5s ease forwards; position: absolute; top: 0; left: 0;
+  }
+  .screen.active { display: flex; }
+  
+  .intro-slide {
+    display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center;
+    position: absolute; top: 0; left: 0; animation: fadeIn 0.4s ease; font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .intro-slide.active { display: flex; }
+  
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .toast { position: absolute; top: 120px; left: 50%; transform: translateX(-50%); background: #EF4444; color: white; padding: 30px 60px; border-radius: 40px; font-size: 40px; font-weight: bold; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 100000; box-shadow: 10px 10px 0px rgba(0,0,0,0.2); white-space: nowrap; font-family: 'Plus Jakarta Sans', sans-serif;}
+  .toast.show { opacity: 1; }
+
+  .c1-brand { font-size: 40px; font-weight: 800; color: #BAE6FD; letter-spacing: 2px;}
+  .c1-title { font-size: 110px; font-weight: 900; color: #FFF; text-shadow: 0 0 30px rgba(0,210,255,0.5); text-align: center; line-height: 1.1; margin: 20px 0;}
+  .c1-sub { font-size: 40px; font-weight: 700; color: #94A3B8; letter-spacing: 5px; }
+  .c1-btn { background: transparent; border: 4px solid #00d2ff; color: #00d2ff; padding: 40px 100px; font-size: 50px; font-weight: 900; border-radius: 60px; text-transform: uppercase; box-shadow: 0 0 40px rgba(0,210,255,0.3), inset 0 0 20px rgba(0,210,255,0.2); margin-top: 80px; transition: all 0.2s; cursor: pointer;}
+  .c1-btn:active { transform: scale(0.95); background: rgba(0,210,255,0.2); }
+  
+  /* Concept 1 SVG Styles */
+  .brain-base { stroke-width: 2; fill-opacity: 0.8; }
+  .brain-base.left { fill: rgba(255, 42, 117, 0.1); stroke: rgba(255, 42, 117, 0.3); filter: drop-shadow(0 0 15px rgba(255, 42, 117, 0.3)); }
+  .brain-base.right { fill: rgba(0, 210, 255, 0.1); stroke: rgba(0, 210, 255, 0.3); filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.3)); }
+  .wrinkle { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0.6; }
+  .wrinkle.left { stroke: #ff2a75; filter: drop-shadow(0 0 5px #ff2a75); }
+  .wrinkle.right { stroke: rgba(0, 210, 255, 0.3); }
+  .network-node { fill: #fff; filter: drop-shadow(0 0 4px #fff) drop-shadow(0 0 8px #ff2a75); animation: pulse-node 3s infinite alternate; }
+  .network-link { stroke: #ff2a75; stroke-width: 1; opacity: 0.4; }
+  .network-link.active { animation: pulse-link 2s infinite alternate; }
+  .circuit-trace { fill: none; stroke: #00d2ff; stroke-width: 2; stroke-linejoin: bevel; opacity: 0.3; }
+  .circuit-pad { fill: #fff; stroke: #00d2ff; stroke-width: 2; filter: drop-shadow(0 0 6px #00d2ff); }
+  .data-flow { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: bevel; filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 12px #00d2ff); stroke-dasharray: 20 1000; animation: flow 3s linear infinite; }
+  .particle { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; animation: float-particle 4s infinite ease-in-out; }
+  
+  @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+  @keyframes pulse-node { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.5); opacity: 1; } }
+  @keyframes pulse-link { 0% { opacity: 0.1; } 100% { opacity: 0.8; } }
+  @keyframes flow { 0% { stroke-dashoffset: 1000; opacity: 1; } 80% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+  @keyframes float-particle { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateY(-30px) scale(1.5); opacity: 0; } }
+
+  .sketchy-box { border: 8px solid #1E293B; border-radius: 2% 95% 4% 95% / 95% 4% 92% 5%; background: #FFFFFF; box-shadow: 12px 12px 0px rgba(0,0,0,0.1); color: #0F172A; }
+  .sketchy-box-dashed { border: 8px dashed #64748B; border-radius: 4% 92% 5% 94% / 93% 5% 95% 3%; background: rgba(255,255,255,0.4); }
+
+  .game-screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; text-align: center; animation: fadeIn 0.5s ease forwards; padding: 80px 60px; position: absolute; top: 0; left: 0; z-index: 100;}
+  .game-screen.active { display: flex; }
+
+  .hud-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 30px 50px; margin-bottom: 80px; background: #FFF; font-size: 45px;}
+  .hud-badge { background: #1E293B; color: white; padding: 15px 40px; border-radius: 2% 95% 4% 95% / 95% 4% 92% 5%; display: flex; align-items: center; gap: 15px;}
+  .hud-timer, .hud-score { font-weight: bold; color: #0F172A; }
+  
+  .level-title { font-size: 90px; color: #FFFFFF; text-transform: uppercase; margin-bottom: 20px; font-weight: bold;}
+  .level-sub { font-size: 50px; color: #94A3B8; margin-bottom: 100px; }
+  .game-area { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; flex: 1;}
+  
+  .bg-dha { background: #BAE6FD; color: #0F172A; } 
+  .bg-ara { background: #FBCFE8; color: #0F172A; } 
+  .bg-dha::after, .bg-dha::before { background: #BAE6FD; }
+  .bg-ara::after, .bg-ara::before { background: #FBCFE8; }
+
+  .l1-row { display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 60px; }
+  .puz-target-wrap { position: relative; width: 800px; height: 180px; margin: 0 auto; }
+  .puz-left { position: relative; width: 280px; height: 180px; display: flex; align-items: center; justify-content: center; font-size: 70px; font-weight: bold; z-index: 10; cursor: grab; transition: transform 0.1s; }
+  .puz-left::after { content: ''; position: absolute; right: -40px; top: 50%; transform: translateY(-50%); width: 40px; height: 80px; border-radius: 0 80px 80px 0; border: 8px solid #1E293B; border-left: none;}
+  .puz-right { position: absolute; right: 0; top: 0; width: 520px; height: 180px; display: flex; align-items: center; justify-content: center; font-size: 45px; font-weight: bold; color: #FFFFFF; padding-left: 50px; z-index: 1; transition: all 0.3s ease;}
+  .puz-right::before { content: ''; position: absolute; left: -40px; top: 50%; transform: translateY(-50%); width: 80px; height: 80px; background: transparent; border-right: 8px dashed #64748B; border-radius: 40% 60% 60% 40% / 50% 50% 50% 50%;}
+  .puz-left.locked { position: absolute !important; left: 0; top: 0; margin: 0; z-index: 20; transform: none !important; }
+
+  .l2-center-drop { position: relative; width: 350px; height: 250px; display: flex; align-items: center; justify-content: center; font-size: 100px; color: #94A3B8; margin: 0 -40px; z-index: 1;}
+  .l2-center-drop::before { content: ''; position: absolute; left: -40px; top: 50%; transform: translateY(-50%); width: 80px; height: 80px; background: transparent; border-right: 8px dashed #64748B; border-radius: 50%; }
+  .l2-center-drop::after { content: ''; position: absolute; right: -40px; top: 50%; transform: translateY(-50%); width: 80px; height: 80px; background: inherit; border-left: 8px dashed #64748B; border-radius: 50%; z-index: 1; }
+  .l2-static { position: relative; width: 250px; height: 250px; display: flex; align-items: center; justify-content: center; font-size: 70px; font-weight:bold; z-index: 2; pointer-events: none;}
+  .l2-static.dha::after { content: ''; position: absolute; right: -40px; top: 50%; transform: translateY(-50%); width: 40px; height: 80px; border-radius: 0 80px 80px 0; border: 8px solid #1E293B; border-left: none;}
+  .l2-static.ara::before { content: ''; position: absolute; left: -40px; top: 50%; transform: translateY(-50%); width: 40px; height: 80px; border-radius: 80px 0 0 80px; border: 8px solid #1E293B; border-right: none;}
+
+  .l3-row { display: flex; align-items: stretch; width: 100%; margin-bottom: 50px; }
+  .l3-hub { position: relative; width: 280px; display: flex; align-items: center; justify-content: center; font-size: 80px; font-weight:bold; z-index: 2; pointer-events: none;}
+  .l3-hub::after { content: ''; position: absolute; right: -36px; top: 25%; transform: translateY(-50%); width: 36px; height: 72px; border-radius: 0 72px 72px 0; border: 8px solid #1E293B; border-left: none;}
+  .l3-hub::before { content: ''; position: absolute; right: -36px; top: 75%; transform: translateY(-50%); width: 36px; height: 72px; border-radius: 0 72px 72px 0; border: 8px solid #1E293B; border-left: none;}
+  .l3-slots { display: flex; flex-direction: column; gap: 30px; margin-left: -36px; z-index: 1; flex: 1;}
+  .l3-dropzone { position: relative; width: 100%; height: 150px; padding-left: 60px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight:bold; color: #FFFFFF;}
+  .l3-dropzone::before { content: ''; position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 72px; height: 72px; background: transparent; border-right: 8px dashed #64748B; border-radius: 50%; }
+
+  .puz-right.success, .l2-center-drop.success, .l3-dropzone.success { background: #D9F99D; border: 8px solid #15803D; color: #14532D; box-shadow: 10px 10px 0px rgba(21, 128, 61, 0.2); }
+  .puz-right.success::before, .l2-center-drop.success::before, .l3-dropzone.success::before { background: transparent; border-right: 8px solid #15803D; }
+  .l2-center-drop.success::after { border-left: 8px solid #15803D; background: #D9F99D; }
+
+  .tray { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; width: 100%; margin-top: auto; padding-top: 40px;}
+  .card-drag { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; cursor: grab; z-index: 100; text-align: center; width: 380px; height: 260px; transition: transform 0.1s;}
+  .card-drag:active, .puz-left:active { cursor: grabbing; z-index: 1000 !important; }
+  .error-flash { animation: flashRed 0.6s both; }
+  @keyframes flashRed { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-15px); border-color: #EF4444; background: #FEE2E2; color: #B91C1C; } 40%, 80% { transform: translateX(15px); } }
+
+  .success-wrap { display: none; width: 100%; text-align: center; margin-top: auto; padding-top: 60px; animation: fadeIn 0.5s forwards; }
+  .success-wrap.show { display: block; }
+  
+  .c4-btn { width: 80%; padding: 50px; font-family: inherit; font-size: 70px; font-weight: bold; cursor: pointer; background: #FDE047; color: #1E293B; transition: all 0.2s; margin-top: 60px; border: 10px solid #1E293B; border-radius: 2% 95% 4% 95% / 95% 4% 92% 5%; box-shadow: 20px 20px 0px rgba(0,0,0,0.15); }
+  .c4-btn:active { transform: translate(15px, 15px); box-shadow: 5px 5px 0px rgba(0,0,0,0.15); }
+</style>
+</head>
+<body>
+
+<div id="kiosk-app">
+  <div class="toast" id="error-toast">Oops! That doesn't fit there.</div>
+
+  <div class="screen active" id="screen-0">
+      <div class="intro-slide active" id="slide-1">
+          <div id="particles-container" style="position: absolute; width: 100%; height: 100%; top:0; left:0; z-index: 0;"></div>
+          
+          <div style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; animation: breathe 6s ease-in-out infinite;">
+              <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" id="brain-svg-c1" style="width: 900px; height: 900px; filter: drop-shadow(0 0 40px rgba(0,0,0,0.8));">
+                  <defs>
+                      <filter id="glow-pink" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
+                      <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
+                      <linearGradient id="fissure-shadow" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stop-color="rgba(0,0,0,0)" /><stop offset="45%" stop-color="rgba(0,0,0,0.8)" /><stop offset="50%" stop-color="rgba(0,0,0,1)" /><stop offset="55%" stop-color="rgba(0,0,0,0.8)" /><stop offset="100%" stop-color="rgba(0,0,0,0)" />
+                      </linearGradient>
+                  </defs>
+                  <g id="brain-bases">
+                      <path class="brain-base left" d="M 395, 100 C 200, 100 50, 250 50, 450 C 50, 650 180, 750 320, 750 C 380, 750 395, 700 395, 650 Z"/>
+                      <path class="brain-base right" d="M 405, 100 C 600, 100 750, 250 750, 450 C 750, 650 620, 750 480, 750 C 420, 750 405, 700 405, 650 Z"/>
+                  </g>
+                  <g id="left-wrinkles"></g>
+                  <g id="right-wrinkles"></g>
+                  <g id="left-network"></g>
+                  <g id="right-circuits"></g>
+                  <rect x="380" y="80" width="40" height="690" fill="url(#fissure-shadow)" />
+              </svg>
+          </div>
+
+          <div style="z-index: 10; text-align: center; margin-top: auto; margin-bottom: 250px;">
+              <div class="c1-brand">STAARTPRIME</div>
+              <div class="c1-title">DHA-ARA<br>MIND MATCH</div>
+              <div class="c1-sub">THE HCP PUZZLE CHALLENGE</div>
+              <button class="c1-btn" onclick="startChallenge()">Start Sequence</button>
+          </div>
+      </div>
+  </div>
+
+  <div class="game-screen" id="screen-1">
+    <div class="hud-bar sketchy-box">
+      <div class="hud-badge">🧩 Level 1</div>
+      <div class="hud-timer" id="timer-1">⏱ 00:00</div>
+      <div class="hud-score">Pts: <span id="score-1">0</span></div>
+    </div>
+    
+    <div class="level-title">KNOW THE NUTRIENTS</div>
+    <div class="level-sub">Drag each nutrient to its full form.</div>
+    
+    <div class="game-area">
+      <div class="l1-row"><div class="puz-target-wrap" data-accept="dha" id="dz-1-dha"><div class="puz-right sketchy-box-dashed" id="target-dha">Docosahexaenoic Acid</div></div></div>
+      <div class="l1-row"><div class="puz-target-wrap" data-accept="ara" id="dz-1-ara"><div class="puz-right sketchy-box-dashed" id="target-ara">Arachidonic Acid</div></div></div>
+      <div class="tray" id="tray-1">
+        <div class="puz-left bg-dha sketchy-box draggable" data-id="dha">DHA</div>
+        <div class="puz-left bg-ara sketchy-box draggable" data-id="ara">ARA</div>
+      </div>
+    </div>
+    
+    <div class="success-wrap" id="success-1">
+      <div style="font-size: 80px; font-weight: bold; color: #86EFAC; margin-bottom: 20px;">Great Start!</div>
+      <div style="font-size: 45px; color: #F1F5F9; margin-bottom: 40px;">You've decoded DHA and ARA.</div>
+      <button class="c4-btn sketchy-box" style="margin-top: 20px; padding: 30px; font-size: 50px;" onclick="startLevel(2)">Next Challenge</button>
+    </div>
+  </div>
+
+  <div class="game-screen" id="screen-2">
+    <div class="hud-bar sketchy-box">
+      <div class="hud-badge">🧩 Level 2</div>
+      <div class="hud-timer" id="timer-2">⏱ 00:00</div>
+      <div class="hud-score">Pts: <span id="score-2">0</span></div>
+    </div>
+    
+    <div class="level-title">FIND THE CONNECTION</div>
+    <div class="level-sub">Where are DHA and ARA naturally present?</div>
+    
+    <div class="game-area">
+      <div style="display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 60px;">
+        <div class="l2-static bg-dha sketchy-box dha">DHA</div>
+        <div class="l2-center-drop dropzone sketchy-box-dashed" data-accept="milk" id="dz-2-milk">?</div>
+        <div class="l2-static bg-ara sketchy-box ara">ARA</div>
+      </div>
+      
+      <div class="tray" id="tray-2">
+        <div class="card-drag sketchy-box draggable" data-id="wrong1"><div style="font-size:100px; margin-bottom:20px;">🌿</div><span style="font-size: 35px; font-weight:bold;">Plant oils</span></div>
+        <div class="card-drag sketchy-box draggable" data-id="milk"><div style="font-size:100px; margin-bottom:20px;">🤱</div><span style="font-size: 35px; font-weight:bold;">Human milk</span></div>
+        <div class="card-drag sketchy-box draggable" data-id="wrong2"><div style="font-size:100px; margin-bottom:20px;">🐟</div><span style="font-size: 35px; font-weight:bold;">Marine</span></div>
+        <div class="card-drag sketchy-box draggable" data-id="wrong3"><div style="font-size:100px; margin-bottom:20px;">🥚</div><span style="font-size: 35px; font-weight:bold;">Dairy</span></div>
+      </div>
+    </div>
+    
+    <div class="success-wrap" id="success-2">
+      <div style="font-size: 80px; font-weight: bold; color: #86EFAC; margin-bottom: 20px;">Perfect Match!</div>
+      <button class="c4-btn sketchy-box" style="margin-top: 20px; padding: 30px; font-size: 50px;" onclick="startLevel(3)">Final Challenge</button>
+    </div>
+  </div>
+
+  <div class="game-screen" id="screen-3">
+    <div class="hud-bar sketchy-box">
+      <div class="hud-badge">🧩 Level 3</div>
+      <div class="hud-timer" id="timer-3">⏱ 00:00</div>
+      <div class="hud-score">Pts: <span id="score-3">0</span></div>
+    </div>
+    
+    <div class="level-title">MATCH THE FUNCTION</div>
+    <div class="level-sub">Drag functions to the correct hub.</div>
+    
+    <div class="game-area">
+      <div class="l3-row" id="hub-row-dha">
+        <div class="l3-hub bg-dha sketchy-box">DHA</div>
+        <div class="l3-slots">
+          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="dha">Brain Function</div>
+          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="dha">Visual Function</div>
+        </div>
+      </div>
+      
+      <div class="l3-row" id="hub-row-ara">
+        <div class="l3-hub bg-ara sketchy-box">ARA</div>
+        <div class="l3-slots">
+          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="ara">Cell Membrane</div>
+          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="ara">Immune Function</div>
+        </div>
+      </div>
+      
+      <div class="tray" id="tray-3" style="gap: 20px;">
+        <div class="card-drag sketchy-box draggable" data-id="dha" style="width: 480px; height: 140px; flex-direction: row; gap: 20px;"><div style="font-size:60px;">🧠</div><span style="font-size: 35px; font-weight:bold; text-align:left;">Brain & visual dev</span></div>
+        <div class="card-drag sketchy-box draggable" data-id="dha" style="width: 480px; height: 140px; flex-direction: row; gap: 20px;"><div style="font-size:60px;">👁️</div><span style="font-size: 35px; font-weight:bold; text-align:left;">Visual dev</span></div>
+        <div class="card-drag sketchy-box draggable" data-id="ara" style="width: 480px; height: 140px; flex-direction: row; gap: 20px;"><div style="font-size:60px;">⚙️</div><span style="font-size: 35px; font-weight:bold; text-align:left;">Cell membrane</span></div>
+        <div class="card-drag sketchy-box draggable" data-id="ara" style="width: 480px; height: 140px; flex-direction: row; gap: 20px;"><div style="font-size:60px;">🛡️</div><span style="font-size: 35px; font-weight:bold; text-align:left;">Immune function</span></div>
+      </div>
+    </div>
+    
+    <div class="success-wrap" id="success-3">
+      <div style="font-size: 80px; font-weight: bold; color: #86EFAC; margin-bottom: 20px;">Mind Master!</div>
+      <button class="c4-btn sketchy-box" style="margin-top: 20px; padding: 30px; font-size: 50px;" onclick="finishQuiz()">Reveal The Story</button>
+    </div>
+  </div>
+
+  <div class="game-screen" id="screen-4">
+    <div style="font-size: 130px; font-weight: bold; color: #FFFFFF; margin-bottom: 20px;">You Did It!</div>
+    <div style="font-size: 60px; color: #BAE6FD; margin-bottom: 60px;">THE COMPLETE PICTURE</div>
+    
+    <svg width="700" height="700" viewBox="0 0 400 500" style="margin-bottom: 40px; overflow: visible;">
+        <path d="M 190 40 C 100 30, 20 120, 30 280 C 35 400, 100 470, 180 460 C 195 450, 190 200, 190 40 Z" fill="#BAE6FD" stroke="#2563EB" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 210 40 C 300 30, 380 120, 370 280 C 365 400, 300 470, 220 460 C 205 450, 210 200, 210 40 Z" fill="#FBCFE8" stroke="#DB2777" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 190 120 Q 120 100, 70 170 T 90 270" fill="none" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+        <path d="M 210 120 Q 280 100, 330 170 T 310 270" fill="none" stroke="#EC4899" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+        <path d="M 170 150 L 230 150 M 180 250 L 220 250 M 170 350 L 230 350" stroke="#1E293B" stroke-width="6" stroke-dasharray="8 12" stroke-linecap="round"/>
+        <text x="110" y="260" font-family="'Patrick Hand', cursive" font-size="60" font-weight="bold" fill="#1E293B">DHA</text>
+        <text x="230" y="260" font-family="'Patrick Hand', cursive" font-size="60" font-weight="bold" fill="#1E293B">ARA</text>
+    </svg>
+    
+    <div style="font-size: 65px; font-weight: bold; color: #F1F5F9; margin-bottom: 60px;">Naturally present together in human milk.</div>
+    
+    <div class="sketchy-box" style="padding: 60px; width: 100%; background: #ECFCCB; border-color: #4D7C0F;">
+      <div style="font-size: 60px; font-weight: bold; color: #166534;">DHA-ARA Mind Master!</div>
+      <div style="font-size: 140px; font-weight: bold; color: #15803D; margin-top: 20px;" id="final-score-display">0 / 100</div>
+    </div>
+    
+    <button class="c4-btn sketchy-box" onclick="location.reload()">Play Again</button>
+  </div>
+
+</div> 
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  window.kioskScale = 1;
+  function scaleKiosk() {
+      const app = document.getElementById('kiosk-app');
+      const scaleX = window.innerWidth / 1080;
+      const scaleY = window.innerHeight / 1920;
+      window.kioskScale = Math.min(scaleX, scaleY);
+      app.style.transform = `scale(${window.kioskScale})`;
+  }
+  window.addEventListener('resize', scaleKiosk);
+  scaleKiosk(); 
+
+  function initConcept1Animation() {
+      const svgNS = "http://www.w3.org/2000/svg";
+      const leftWrinkles = document.getElementById('left-wrinkles');
+      const rightWrinkles = document.getElementById('right-wrinkles');
+      const leftNetwork = document.getElementById('left-network');
+      const rightCircuits = document.getElementById('right-circuits');
+      const particlesContainer = document.getElementById('particles-container');
+
+      if(!leftWrinkles) return;
+
+      const rand = (min, max) => Math.random() * (max - min) + min;
+      const isInsideLeftBrain = (x, y) => Math.pow((x - 250) / 180, 2) + Math.pow((y - 425) / 280, 2) <= 1;
+      const isInsideRightBrain = (x, y) => Math.pow((x - 550) / 180, 2) + Math.pow((y - 425) / 280, 2) <= 1;
+
+      for(let i=0; i<40; i++) {
+          let lx = rand(100, 380), ly = rand(150, 700);
+          if(isInsideLeftBrain(lx, ly)) {
+              let path = document.createElementNS(svgNS, 'path');
+              path.setAttribute('d', `M ${lx},${ly} Q ${lx + rand(-40, 40)},${ly + rand(-40, 40)} ${lx + rand(-30, 30)},${ly + rand(20, 60)} T ${lx + rand(-40, 40)},${ly + rand(60, 100)}`);
+              path.setAttribute('class', 'wrinkle left');
+              leftWrinkles.appendChild(path);
+          }
+          let rx = rand(420, 700), ry = rand(150, 700);
+          if(isInsideRightBrain(rx, ry)) {
+              let path = document.createElementNS(svgNS, 'path');
+              path.setAttribute('d', `M ${rx},${ry} Q ${rx + rand(-40, 40)},${ry + rand(-40, 40)} ${rx + rand(-30, 30)},${ry + rand(20, 60)} T ${rx + rand(-40, 40)},${ry + rand(60, 100)}`);
+              path.setAttribute('class', 'wrinkle right');
+              rightWrinkles.appendChild(path);
+          }
+      }
+
+      const nodes = [];
+      for(let i=0; i<60; i++) {
+          let x, y;
+          do { x = rand(60, 420); y = rand(100, 760); } while(!isInsideLeftBrain(x, y) && Math.random() > 0.2);
+          nodes.push({x, y});
+          const circle = document.createElementNS(svgNS, 'circle');
+          circle.setAttribute('cx', x); circle.setAttribute('cy', y); circle.setAttribute('r', rand(1, 4));
+          circle.setAttribute('class', 'network-node'); circle.style.animationDelay = `${rand(0, 3)}s`;
+          leftNetwork.appendChild(circle);
+      }
+      for(let i=0; i<nodes.length; i++) {
+          for(let j=i+1; j<nodes.length; j++) {
+              if(Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y) < 80) {
+                  const line = document.createElementNS(svgNS, 'line');
+                  line.setAttribute('x1', nodes[i].x); line.setAttribute('y1', nodes[i].y);
+                  line.setAttribute('x2', nodes[j].x); line.setAttribute('y2', nodes[j].y);
+                  line.setAttribute('class', `network-link ${Math.random() > 0.5 ? 'active' : ''}`);
+                  line.style.animationDelay = `${rand(0, 2)}s`;
+                  leftNetwork.appendChild(line);
+              }
+          }
+      }
+
+      const snap = (val) => Math.round(val / 20) * 20;
+      for(let i=0; i<25; i++) {
+          let startX = rand(410, 480), startY = snap(rand(150, 700));
+          let pathData = `M ${startX},${startY} `, currentX = startX, currentY = startY;
+          for(let j=0; j<Math.floor(rand(2, 6)); j++) {
+              let dir = Math.floor(rand(0, 4)), length = snap(rand(20, 80));
+              let nextX = currentX, nextY = currentY;
+              if(dir === 0) nextX += length; else if(dir === 1) { nextX += length; nextY -= length; } else if(dir === 2) { nextX += length; nextY += length; } else if(dir === 3) nextY += (Math.random() > 0.5 ? length : -length);
+              if (nextX < 750 && nextX > 405 && nextY > 100 && nextY < 750) {
+                  pathData += `L ${nextX},${nextY} `; currentX = nextX; currentY = nextY;
+              } else break;
+          }
+          const trace = document.createElementNS(svgNS, 'path'); trace.setAttribute('d', pathData); trace.setAttribute('class', 'circuit-trace'); rightCircuits.appendChild(trace);
+          if(Math.random() > 0.3) {
+              const flow = document.createElementNS(svgNS, 'path'); flow.setAttribute('d', pathData); flow.setAttribute('class', 'data-flow');
+              flow.style.animationDuration = `${rand(2, 5)}s`; flow.style.animationDelay = `${rand(0, 3)}s`; rightCircuits.appendChild(flow);
+          }
+          const pad = document.createElementNS(svgNS, 'circle'); pad.setAttribute('cx', currentX); pad.setAttribute('cy', currentY); pad.setAttribute('r', rand(2, 5)); pad.setAttribute('class', 'circuit-pad'); rightCircuits.appendChild(pad);
+      }
+
+      for(let i=0; i<50; i++) {
+          const particle = document.createElement('div'); particle.classList.add('particle');
+          const isLeft = Math.random() > 0.5;
+          particle.style.left = `${rand(0, 100)}%`; particle.style.top = `${rand(0, 100)}%`;
+          const size = rand(5, 15); particle.style.width = `${size}px`; particle.style.height = `${size}px`;
+          if (isLeft) { particle.style.backgroundColor = '#ff2a75'; particle.style.boxShadow = '0 0 15px #ff2a75'; } 
+          else { particle.style.backgroundColor = '#00d2ff'; particle.style.boxShadow = '0 0 15px #00d2ff'; }
+          particle.style.animationDuration = `${rand(3, 8)}s`; particle.style.animationDelay = `${rand(0, 5)}s`;
+          particlesContainer.appendChild(particle);
+      }
+  }
+
+  var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  var audioCtx;
+
+  function initAudio() {
+    if (!AudioContextClass) return;
+    if (!audioCtx) audioCtx = new AudioContextClass();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function playNote(frequency, startTimeOffset, duration, type) {
+    if (!audioCtx) return;
+    var osc = audioCtx.createOscillator();
+    var gainNode = audioCtx.createGain();
+    osc.type = type || 'sine'; osc.frequency.value = frequency;
+    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+    var startTime = audioCtx.currentTime + startTimeOffset;
+    gainNode.gain.setValueAtTime(0, startTime); gainNode.gain.linearRampToValueAtTime(0.1, startTime + 0.05); gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+    osc.start(startTime); osc.stop(startTime + duration);
+  }
+
+  function playSound(type) {
+    try {
+      if (!audioCtx) return;
+      if (type === 'pop') playNote(400, 0, 0.1, 'sine');
+      else if (type === 'success') { playNote(523.25, 0, 0.2, 'triangle'); playNote(783.99, 0.1, 0.3, 'triangle'); } 
+      else if (type === 'error') {
+        var osc = audioCtx.createOscillator(), gainNode = audioCtx.createGain();
+        osc.connect(gainNode); gainNode.connect(audioCtx.destination); osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+      }
+      else if (type === 'level-complete') { playNote(523.25, 0.0, 0.3, 'sine'); playNote(659.25, 0.1, 0.3, 'sine'); playNote(783.99, 0.2, 0.3, 'sine'); playNote(1046.50, 0.3, 0.6, 'sine'); }
+      else if (type === 'game-complete') { playNote(523.25, 0.0, 0.4, 'triangle'); playNote(659.25, 0.2, 0.4, 'triangle'); playNote(783.99, 0.4, 0.4, 'triangle'); playNote(523.25, 0.6, 1.5, 'sine'); playNote(659.25, 0.6, 1.5, 'sine'); playNote(1046.50, 0.6, 1.5, 'triangle'); }
+    } catch (e) {}
+  }
+
+  function showToast() {
+    var toast = document.getElementById('error-toast');
+    if (!toast) return;
+    toast.classList.add('show'); setTimeout(function () { toast.classList.remove('show'); }, 2000);
+  }
+
+  var currentLevel = 0, score = 0, timerInterval = null, secondsElapsed = 0, currentMatches = 0;
+  var isTimerRunning = false;
+  var matchesNeeded = { 1: 2, 2: 1, 3: 4 };
+
+  function formatTime(sec) {
+    var minutes = Math.floor(sec / 60); var seconds = sec % 60;
+    return '⏱ ' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+  }
+
+  function startTimer() {
+    if (isTimerRunning) return;
+    isTimerRunning = true;
+    timerInterval = setInterval(function () {
+      secondsElapsed++;
+      var timer = document.getElementById('timer-' + currentLevel);
+      if (timer) timer.innerText = formatTime(secondsElapsed);
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    isTimerRunning = false;
+  }
+
+  function updateScore(points) {
+    score += points;
+    document.querySelectorAll("[id^='score-']").forEach(function (element) { element.innerText = score; });
+  }
+
+  function showScreen(index) {
+    document.querySelectorAll('.screen, .game-screen').forEach(function (screen) { screen.classList.remove('active'); });
+    var targetScreen = document.getElementById('screen-' + index);
+    if (targetScreen) targetScreen.classList.add('active');
+  }
+
+  window.startChallenge = function() {
+    initAudio();
+    startLevel(1);
+  };
+
+  window.startLevel = function(level) {
+    currentLevel = level; currentMatches = 0; secondsElapsed = 0;
+    showScreen(level); startTimer(); initDragDropForLevel(level);
+  };
+
+  window.finishQuiz = function() {
+    stopTimer();
+    var finalScore = document.getElementById('final-score-display');
+    if (finalScore) finalScore.innerText = score + ' / 100';
+    showScreen(4); playSound('game-complete'); fireConfetti();
+  };
+
+  function initDragDropForLevel(level) {
+    var draggables = document.querySelectorAll('#screen-' + level + ' .draggable');
+    var targetSelector = level === 1 ? '.puz-target-wrap' : '.dropzone';
+    var targets = document.querySelectorAll('#screen-' + level + ' ' + targetSelector);
+
+    draggables.forEach(function (element) {
+      if (element.dataset.mindMatchReady === 'true') return;
+      element.dataset.mindMatchReady = 'true';
+
+      var isDragging = false, startX = 0, startY = 0;
+      var translateX = 0, translateY = 0; 
+
+      function onStart(event) {
+        if (element.classList.contains('locked')) return;
+        isDragging = true; playSound('pop');
+        var pointer = event.type.indexOf('mouse') !== -1 ? event : event.touches[0];
+        startX = pointer.clientX; 
+        startY = pointer.clientY;
+        element.style.zIndex = '1000';
+      }
+
+      function onMove(event) {
+        if (!isDragging) return;
+        event.preventDefault();
+        var pointer = event.type.indexOf('mouse') !== -1 ? event : event.touches[0];
+        
+        var dx = (pointer.clientX - startX) / window.kioskScale;
+        var dy = (pointer.clientY - startY) / window.kioskScale;
+        
+        translateX += dx;
+        translateY += dy;
+        
+        startX = pointer.clientX;
+        startY = pointer.clientY;
+        
+        element.style.transform = `translate(${translateX}px, ${translateY}px)`;
+      }
+
+      function onEnd() {
+        if (!isDragging) return;
+        isDragging = false; element.style.zIndex = '10';
+        
+        var rect = element.getBoundingClientRect(), centerX = rect.left + rect.width / 2, centerY = rect.top + rect.height / 2, droppedOnTarget = null;
+        
+        targets.forEach(function (target) {
+          var targetRect = target.getBoundingClientRect();
+          if (centerX >= targetRect.left && centerX <= targetRect.right && centerY >= targetRect.top && centerY <= targetRect.bottom) droppedOnTarget = target;
+        });
+
+        if (droppedOnTarget && !droppedOnTarget.classList.contains('filled')) {
+          if (element.getAttribute('data-id') === droppedOnTarget.getAttribute('data-accept')) {
+            playSound('success'); element.classList.add('locked'); droppedOnTarget.classList.add('filled');
+
+            if (level === 1) {
+              droppedOnTarget.insertBefore(element, droppedOnTarget.firstChild);
+              element.style.transform = 'none';
+              var rightPiece = droppedOnTarget.querySelector('.puz-right');
+              if (rightPiece) { rightPiece.classList.add('success'); rightPiece.innerHTML = '✓ ' + rightPiece.innerText; }
+              updateScore(10);
+            } else if (level === 2) {
+              element.style.display = 'none'; droppedOnTarget.classList.add('success'); droppedOnTarget.innerHTML = '🤱';
+              updateScore(30); var tray2 = document.getElementById('tray-2'); if (tray2) tray2.style.display = 'none';
+            } else if (level === 3) {
+              element.style.display = 'none'; droppedOnTarget.classList.add('success'); droppedOnTarget.innerHTML = '✓ ' + element.innerText;
+              updateScore(12.5);
+            }
+
+            currentMatches++;
+            if (currentMatches === matchesNeeded[level]) {
+              stopTimer();
+              var success = document.getElementById('success-' + level);
+              if (success) success.classList.add('show');
+              setTimeout(function() { playSound('level-complete'); }, 300);
+              fireConfetti();
+            }
+            return;
+          }
+
+          playSound('error'); showToast();
+          if (level === 1) {
+            var rightTargetInner = droppedOnTarget.querySelector('.puz-right');
+            if (rightTargetInner) { rightTargetInner.classList.add('error-flash'); setTimeout(function () { rightTargetInner.classList.remove('error-flash'); }, 600); }
+          } else {
+            droppedOnTarget.classList.add('error-flash'); setTimeout(function () { droppedOnTarget.classList.remove('error-flash'); }, 600);
+          }
+        }
+        
+        translateX = 0; translateY = 0;
+        if (!element.classList.contains('locked')) element.style.transform = 'translate(0px,0px)';
+      }
+
+      element.addEventListener('mousedown', onStart); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onEnd);
+      element.addEventListener('touchstart', onStart, { passive: false }); window.addEventListener('touchmove', onMove, { passive: false }); window.addEventListener('touchend', onEnd);
+    });
+  }
+
+  function fireConfetti() {
+    if (typeof confetti === 'undefined') return;
+    confetti({ particleCount: 250, spread: 150, origin: { y: 0.5 }, colors: ['#3B82F6', '#EC4899', '#10B981', '#F59E0B'] });
+  }
+
+  initConcept1Animation();
+  
+})();
+</script>
+</body>
+</html>
