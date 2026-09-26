@@ -3,34 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Mind Match - 55" Kiosk</title>
-
+<title>Mind Match - Fully Responsive</title>
 <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   
+  :root {
+    --border: clamp(3px, 0.6vw, 8px);
+    --conn-w: clamp(15px, 4vw, 40px);
+    --conn-h: clamp(30px, 8vw, 80px);
+    --conn-round: clamp(30px, 8vw, 80px);
+    
+    --l2-size: clamp(90px, 20vw, 250px);
+    --l2-conn: clamp(30px, 6vw, 80px);
+  }
+
   body { 
-    background: #1E293B; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden; 
-    touch-action: none; 
+    background: #1E293B; display: flex; align-items: center; justify-content: center; 
+    height: 100vh; width: 100vw; overflow: hidden; touch-action: none; 
     font-family: 'Patrick Hand', cursive;
   }
   
   #kiosk-app {
-    width: 1080px;
-    height: 1920px;
-    background: linear-gradient(90deg, #200515 50%, #070f24 50%); /* Concept 1 background applied globally */
-    position: relative;
-    transform-origin: center center;
-    box-shadow: 0 0 60px rgba(0,0,0,0.8);
-    overflow: hidden;
-    color: #FFFFFF;
+    width: 100vw; height: 100vh; max-width: 100%; max-height: 100%;
+    background: #0F172A; position: relative; overflow: hidden;
+    color: #FFFFFF; transition: background 0.5s ease;
+    display: flex; flex-direction: column;
   }
+
+  #kiosk-app.concept1 { background: linear-gradient(90deg, #200515 50%, #070f24 50%); }
+  #global-mind-bg { transition: opacity 0.5s ease; }
+  #kiosk-app:not(.concept1) #global-mind-bg { opacity: 0.2; }
 
   .screen { 
     display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; 
@@ -46,16 +49,26 @@
   
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  .toast { position: absolute; top: 120px; left: 50%; transform: translateX(-50%); background: #EF4444; color: white; padding: 30px 60px; border-radius: 40px; font-size: 40px; font-weight: bold; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 100000; box-shadow: 10px 10px 0px rgba(0,0,0,0.2); white-space: nowrap; font-family: 'Plus Jakarta Sans', sans-serif;}
+  .toast { 
+    position: absolute; top: clamp(20px, 5vh, 120px); left: 50%; transform: translateX(-50%); 
+    background: #EF4444; color: white; padding: clamp(10px, 2vh, 30px) clamp(20px, 4vw, 60px); 
+    border-radius: clamp(15px, 3vh, 40px); font-size: clamp(16px, 4vw, 40px); font-weight: bold; 
+    opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 100000; 
+    box-shadow: 10px 10px 0px rgba(0,0,0,0.2); white-space: nowrap; font-family: 'Plus Jakarta Sans', sans-serif;
+  }
   .toast.show { opacity: 1; }
 
-  .c1-brand { font-size: 40px; font-weight: 800; color: #BAE6FD; letter-spacing: 2px;}
-  .c1-title { font-size: 110px; font-weight: 900; color: #FFF; text-shadow: 0 0 30px rgba(0,210,255,0.5); text-align: center; line-height: 1.1; margin: 20px 0;}
-  .c1-sub { font-size: 40px; font-weight: 700; color: #94A3B8; letter-spacing: 5px; }
-  .c1-btn { background: transparent; border: 4px solid #00d2ff; color: #00d2ff; padding: 40px 100px; font-size: 50px; font-weight: 900; border-radius: 60px; text-transform: uppercase; box-shadow: 0 0 40px rgba(0,210,255,0.3), inset 0 0 20px rgba(0,210,255,0.2); margin-top: 80px; transition: all 0.2s; cursor: pointer;}
+  .c1-title { font-size: clamp(40px, 10vw, 110px); font-weight: 900; color: #FFF; text-shadow: 0 0 30px rgba(0,210,255,0.5); text-align: center; line-height: 1.1; margin: 2vh 0;}
+  .c1-sub { font-size: clamp(16px, 4vw, 40px); font-weight: 700; color: #94A3B8; letter-spacing: 5px; text-align: center; margin: 0 2vw; }
+  .c1-btn { 
+    background: transparent; border: var(--border) solid #00d2ff; color: #00d2ff; 
+    padding: clamp(15px, 3vh, 40px) clamp(30px, 6vw, 100px); font-size: clamp(20px, 5vw, 50px); 
+    font-weight: 900; border-radius: 60px; text-transform: uppercase; 
+    box-shadow: 0 0 40px rgba(0,210,255,0.3), inset 0 0 20px rgba(0,210,255,0.2); 
+    margin-top: 8vh; transition: all 0.2s; cursor: pointer;
+  }
   .c1-btn:active { transform: scale(0.95); background: rgba(0,210,255,0.2); }
   
-  /* Concept 1 SVG Styles */
   .brain-base { stroke-width: 2; fill-opacity: 0.8; }
   .brain-base.left { fill: rgba(255, 42, 117, 0.1); stroke: rgba(255, 42, 117, 0.3); filter: drop-shadow(0 0 15px rgba(255, 42, 117, 0.3)); }
   .brain-base.right { fill: rgba(0, 210, 255, 0.1); stroke: rgba(0, 210, 255, 0.3); filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.3)); }
@@ -76,100 +89,101 @@
   @keyframes flow { 0% { stroke-dashoffset: 1000; opacity: 1; } 80% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
   @keyframes float-particle { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateY(-30px) scale(1.5); opacity: 0; } }
 
-  .sketchy-box { border: 8px solid #1E293B; border-radius: 2% 95% 4% 95% / 95% 4% 92% 5%; background: #FFFFFF; box-shadow: 12px 12px 0px rgba(0,0,0,0.1); color: #0F172A; }
-  .sketchy-box-dashed { border: 8px dashed #64748B; border-radius: 4% 92% 5% 94% / 93% 5% 95% 3%; background: rgba(255,255,255,0.4); }
+  .sketchy-box { border: var(--border) solid #1E293B; border-radius: 2% 95% 4% 95% / 95% 4% 92% 5%; background: #FFFFFF; box-shadow: 1vmin 1vmin 0px rgba(0,0,0,0.1); color: #0F172A; }
+  .sketchy-box-dashed { border: var(--border) dashed #64748B; border-radius: 4% 92% 5% 94% / 93% 5% 95% 3%; background: rgba(255,255,255,0.4); }
 
-  .game-screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; text-align: center; animation: fadeIn 0.5s ease forwards; padding: 80px 60px; position: absolute; top: 0; left: 0; z-index: 100;}
+  .game-screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; text-align: center; animation: fadeIn 0.5s ease forwards; padding: clamp(10px, 3vh, 80px) clamp(10px, 3vw, 60px); position: absolute; top: 0; left: 0; z-index: 100;}
   .game-screen.active { display: flex; }
 
-  .hud-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 30px 50px; margin-bottom: 80px; background: #FFF; font-size: 45px;}
-  .hud-badge { background: #1E293B; color: white; padding: 15px 40px; border-radius: 2% 95% 4% 95% / 95% 4% 92% 5%; display: flex; align-items: center; gap: 15px;}
+  .hud-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: clamp(10px, 2vh, 30px) clamp(15px, 3vw, 50px); margin-bottom: clamp(20px, 4vh, 80px); background: #FFF; font-size: clamp(16px, 4vw, 45px);}
+  .hud-badge { background: #1E293B; color: white; padding: clamp(5px, 1vh, 15px) clamp(10px, 2vw, 40px); border-radius: 2% 95% 4% 95% / 95% 4% 92% 5%; display: flex; align-items: center; gap: clamp(5px, 1vw, 15px);}
   .hud-timer, .hud-score { font-weight: bold; color: #0F172A; }
   
-  .level-title { font-size: 90px; color: #FFFFFF; text-transform: uppercase; margin-bottom: 20px; font-weight: bold;}
-  .level-sub { font-size: 50px; color: #94A3B8; margin-bottom: 100px; }
-  .game-area { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; flex: 1;}
+  .level-title { font-size: clamp(30px, 7vw, 90px); color: #FFFFFF; text-transform: uppercase; margin-bottom: 1vh; font-weight: bold;}
+  .level-sub { font-size: clamp(16px, 4vw, 50px); color: #94A3B8; margin-bottom: clamp(20px, 4vh, 100px); }
+  .game-area { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; flex: 1; max-height: 100%;}
   
   .bg-dha { background: #BAE6FD; color: #0F172A; } 
   .bg-ara { background: #FBCFE8; color: #0F172A; } 
   .bg-dha::after, .bg-dha::before { background: #BAE6FD; }
   .bg-ara::after, .bg-ara::before { background: #FBCFE8; }
 
-  .l1-row { display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 60px; }
-  .puz-target-wrap { position: relative; width: 800px; height: 180px; margin: 0 auto; }
-  .puz-left { position: relative; width: 280px; height: 180px; display: flex; align-items: center; justify-content: center; font-size: 70px; font-weight: bold; z-index: 10; cursor: grab; transition: transform 0.1s; }
-  .puz-left::after { content: ''; position: absolute; right: -40px; top: 50%; transform: translateY(-50%); width: 40px; height: 80px; border-radius: 0 80px 80px 0; border: 8px solid #1E293B; border-left: none;}
-  .puz-right { position: absolute; right: 0; top: 0; width: 520px; height: 180px; display: flex; align-items: center; justify-content: center; font-size: 45px; font-weight: bold; color: #FFFFFF; padding-left: 50px; z-index: 1; transition: all 0.3s ease;}
-  .puz-right::before { content: ''; position: absolute; left: -40px; top: 50%; transform: translateY(-50%); width: 80px; height: 80px; background: transparent; border-right: 8px dashed #64748B; border-radius: 40% 60% 60% 40% / 50% 50% 50% 50%;}
+  .l1-row { display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: clamp(20px, 4vh, 60px); }
+  .puz-target-wrap { position: relative; width: 90vw; max-width: 800px; height: clamp(60px, 12vh, 180px); margin: 0 auto; display: flex; justify-content: flex-end;}
+  .puz-left { position: relative; width: clamp(100px, 30vw, 280px); height: clamp(60px, 12vh, 180px); display: flex; align-items: center; justify-content: center; font-size: clamp(24px, 6vw, 70px); font-weight: bold; z-index: 10; cursor: grab; transition: transform 0.1s; }
+  .puz-left::after { content: ''; position: absolute; right: calc(var(--conn-w) * -1); top: 50%; transform: translateY(-50%); width: var(--conn-w); height: var(--conn-h); border-radius: 0 var(--conn-round) var(--conn-round) 0; border: var(--border) solid #1E293B; border-left: none;}
+  .puz-right { position: absolute; right: 0; top: 0; width: clamp(200px, 65vw, 550px); height: 100%; display: flex; align-items: center; justify-content: center; font-size: clamp(14px, 4vw, 45px); font-weight: bold; color: #FFFFFF; padding-left: clamp(20px, 5vw, 50px); z-index: 1; transition: all 0.3s ease;}
+  .puz-right::before { content: ''; position: absolute; left: calc(var(--conn-h) * -0.5); top: 50%; transform: translateY(-50%); width: var(--conn-h); height: var(--conn-h); background: transparent; border-right: var(--border) dashed #64748B; border-radius: 40% 60% 60% 40% / 50% 50% 50% 50%;}
   .puz-left.locked { position: absolute !important; left: 0; top: 0; margin: 0; z-index: 20; transform: none !important; }
 
-  .l2-center-drop { position: relative; width: 350px; height: 250px; display: flex; align-items: center; justify-content: center; font-size: 100px; color: #94A3B8; margin: 0 -40px; z-index: 1;}
-  .l2-center-drop::before { content: ''; position: absolute; left: -40px; top: 50%; transform: translateY(-50%); width: 80px; height: 80px; background: transparent; border-right: 8px dashed #64748B; border-radius: 50%; }
-  .l2-center-drop::after { content: ''; position: absolute; right: -40px; top: 50%; transform: translateY(-50%); width: 80px; height: 80px; background: inherit; border-left: 8px dashed #64748B; border-radius: 50%; z-index: 1; }
-  .l2-static { position: relative; width: 250px; height: 250px; display: flex; align-items: center; justify-content: center; font-size: 70px; font-weight:bold; z-index: 2; pointer-events: none;}
-  .l2-static.dha::after { content: ''; position: absolute; right: -40px; top: 50%; transform: translateY(-50%); width: 40px; height: 80px; border-radius: 0 80px 80px 0; border: 8px solid #1E293B; border-left: none;}
-  .l2-static.ara::before { content: ''; position: absolute; left: -40px; top: 50%; transform: translateY(-50%); width: 40px; height: 80px; border-radius: 80px 0 0 80px; border: 8px solid #1E293B; border-right: none;}
+  .l2-center-drop { position: relative; width: var(--l2-size); height: var(--l2-size); display: flex; align-items: center; justify-content: center; font-size: clamp(40px, 10vw, 100px); color: #94A3B8; margin: 0 calc(var(--l2-conn) * -0.5); z-index: 1;}
+  .l2-center-drop::before { content: ''; position: absolute; left: calc(var(--l2-conn) * -0.5); top: 50%; transform: translateY(-50%); width: var(--l2-conn); height: var(--l2-conn); background: transparent; border-right: var(--border) dashed #64748B; border-radius: 50%; }
+  .l2-center-drop::after { content: ''; position: absolute; right: calc(var(--l2-conn) * -0.5); top: 50%; transform: translateY(-50%); width: var(--l2-conn); height: var(--l2-conn); background: inherit; border-left: var(--border) dashed #64748B; border-radius: 50%; z-index: 1; }
+  .l2-static { position: relative; width: calc(var(--l2-size) * 0.8); height: calc(var(--l2-size) * 0.8); display: flex; align-items: center; justify-content: center; font-size: clamp(24px, 6vw, 70px); font-weight:bold; z-index: 2; pointer-events: none;}
+  .l2-static.dha::after { content: ''; position: absolute; right: calc(var(--conn-w) * -1); top: 50%; transform: translateY(-50%); width: var(--conn-w); height: var(--conn-h); border-radius: 0 var(--conn-round) var(--conn-round) 0; border: var(--border) solid #1E293B; border-left: none;}
+  .l2-static.ara::before { content: ''; position: absolute; left: calc(var(--conn-w) * -1); top: 50%; transform: translateY(-50%); width: var(--conn-w); height: var(--conn-h); border-radius: var(--conn-round) 0 0 var(--conn-round); border: var(--border) solid #1E293B; border-right: none;}
 
-  .l3-row { display: flex; align-items: stretch; width: 100%; margin-bottom: 50px; }
-  .l3-hub { position: relative; width: 280px; display: flex; align-items: center; justify-content: center; font-size: 80px; font-weight:bold; z-index: 2; pointer-events: none;}
-  .l3-hub::after { content: ''; position: absolute; right: -36px; top: 25%; transform: translateY(-50%); width: 36px; height: 72px; border-radius: 0 72px 72px 0; border: 8px solid #1E293B; border-left: none;}
-  .l3-hub::before { content: ''; position: absolute; right: -36px; top: 75%; transform: translateY(-50%); width: 36px; height: 72px; border-radius: 0 72px 72px 0; border: 8px solid #1E293B; border-left: none;}
-  .l3-slots { display: flex; flex-direction: column; gap: 30px; margin-left: -36px; z-index: 1; flex: 1;}
-  .l3-dropzone { position: relative; width: 100%; height: 150px; padding-left: 60px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight:bold; color: #FFFFFF;}
-  .l3-dropzone::before { content: ''; position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 72px; height: 72px; background: transparent; border-right: 8px dashed #64748B; border-radius: 50%; }
+  .l3-row { display: flex; align-items: stretch; width: 100%; max-width: 800px; margin-bottom: clamp(15px, 3vh, 50px); }
+  .l3-hub { position: relative; width: clamp(100px, 30vw, 280px); display: flex; align-items: center; justify-content: center; font-size: clamp(24px, 6vw, 80px); font-weight:bold; z-index: 2; pointer-events: none;}
+  .l3-hub::after { content: ''; position: absolute; right: calc(var(--conn-w) * -1); top: 25%; transform: translateY(-50%); width: var(--conn-w); height: var(--conn-h); border-radius: 0 var(--conn-round) var(--conn-round) 0; border: var(--border) solid #1E293B; border-left: none;}
+  .l3-hub::before { content: ''; position: absolute; right: calc(var(--conn-w) * -1); top: 75%; transform: translateY(-50%); width: var(--conn-w); height: var(--conn-h); border-radius: 0 var(--conn-round) var(--conn-round) 0; border: var(--border) solid #1E293B; border-left: none;}
+  .l3-slots { display: flex; flex-direction: column; gap: clamp(10px, 2vh, 30px); margin-left: calc(var(--conn-w) * -1); z-index: 1; flex: 1;}
+  .l3-dropzone { position: relative; width: 100%; height: clamp(50px, 10vh, 150px); padding-left: clamp(20px, 5vw, 60px); display: flex; align-items: center; justify-content: center; font-size: clamp(14px, 3.5vw, 40px); font-weight:bold; color: #FFFFFF;}
+  .l3-dropzone::before { content: ''; position: absolute; left: calc(var(--l2-conn) * -0.5); top: 50%; transform: translateY(-50%); width: var(--l2-conn); height: var(--l2-conn); background: transparent; border-right: var(--border) dashed #64748B; border-radius: 50%; }
 
-  .puz-right.success, .l2-center-drop.success, .l3-dropzone.success { background: #D9F99D; border: 8px solid #15803D; color: #14532D; box-shadow: 10px 10px 0px rgba(21, 128, 61, 0.2); }
-  .puz-right.success::before, .l2-center-drop.success::before, .l3-dropzone.success::before { background: transparent; border-right: 8px solid #15803D; }
-  .l2-center-drop.success::after { border-left: 8px solid #15803D; background: #D9F99D; }
+  .puz-right.success, .l2-center-drop.success, .l3-dropzone.success { background: #D9F99D; border: var(--border) solid #15803D; color: #14532D; box-shadow: 10px 10px 0px rgba(21, 128, 61, 0.2); }
+  .puz-right.success::before, .l2-center-drop.success::before, .l3-dropzone.success::before { background: transparent; border-right: var(--border) solid #15803D; }
+  .l2-center-drop.success::after { border-left: var(--border) solid #15803D; background: #D9F99D; }
 
-  .tray { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; width: 100%; margin-top: auto; padding-top: 40px;}
-  .card-drag { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; cursor: grab; z-index: 100; text-align: center; width: 380px; height: 260px; transition: transform 0.1s;}
+  .tray { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(10px, 2vw, 40px); width: 100%; margin-top: auto; padding-top: 2vh;}
+  .card-drag { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: clamp(5px, 1vh, 20px); cursor: grab; z-index: 100; text-align: center; width: clamp(120px, 40vw, 380px); height: clamp(80px, 15vh, 260px); transition: transform 0.1s;}
+  .card-drag-l3 { width: clamp(160px, 45vw, 480px); height: clamp(50px, 10vh, 140px); flex-direction: row; gap: clamp(5px, 2vw, 20px); }
+  
   .card-drag:active, .puz-left:active { cursor: grabbing; z-index: 1000 !important; }
   .error-flash { animation: flashRed 0.6s both; }
   @keyframes flashRed { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-15px); border-color: #EF4444; background: #FEE2E2; color: #B91C1C; } 40%, 80% { transform: translateX(15px); } }
 
-  .success-wrap { display: none; width: 100%; text-align: center; margin-top: auto; padding-top: 60px; animation: fadeIn 0.5s forwards; }
+  .success-wrap { display: none; width: 100%; text-align: center; margin-top: auto; padding-top: 2vh; animation: fadeIn 0.5s forwards; }
   .success-wrap.show { display: block; }
   
-  .c4-btn { width: 80%; padding: 50px; font-family: inherit; font-size: 70px; font-weight: bold; cursor: pointer; background: #FDE047; color: #1E293B; transition: all 0.2s; margin-top: 60px; border: 10px solid #1E293B; border-radius: 2% 95% 4% 95% / 95% 4% 92% 5%; box-shadow: 20px 20px 0px rgba(0,0,0,0.15); }
-  .c4-btn:active { transform: translate(15px, 15px); box-shadow: 5px 5px 0px rgba(0,0,0,0.15); }
+  .c4-btn { width: 90%; max-width: 800px; padding: clamp(15px, 3vh, 50px); font-family: inherit; font-size: clamp(24px, 5vw, 70px); font-weight: bold; cursor: pointer; background: #FDE047; color: #1E293B; transition: all 0.2s; margin-top: 2vh; border: var(--border) solid #1E293B; border-radius: 2% 95% 4% 95% / 95% 4% 92% 5%; box-shadow: 1vmin 1vmin 0px rgba(0,0,0,0.15); }
+  .c4-btn:active { transform: translate(1vmin, 1vmin); box-shadow: 0.5vmin 0.5vmin 0px rgba(0,0,0,0.15); }
 </style>
 </head>
 <body>
 
-<div id="kiosk-app">
-  <div class="toast" id="error-toast">Oops! That doesn't fit there.</div>
+<div id="kiosk-app" class="concept1">
+  <div class="toast" id="error-toast">Oops! That doesn't fit there. (-5 Pts)</div>
+
+  <div id="global-mind-bg" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 0; pointer-events: none;">
+      <div id="particles-container" style="position: absolute; width: 100%; height: 100%; top:0; left:0; z-index: 0;"></div>
+      <div style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; animation: breathe 6s ease-in-out infinite;">
+          <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" id="brain-svg-c1" style="width: min(90vw, 90vh); height: min(90vw, 90vh); filter: drop-shadow(0 0 40px rgba(0,0,0,0.8));">
+              <defs>
+                  <filter id="glow-pink" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
+                  <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
+                  <linearGradient id="fissure-shadow" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="rgba(0,0,0,0)" /><stop offset="45%" stop-color="rgba(0,0,0,0.8)" /><stop offset="50%" stop-color="rgba(0,0,0,1)" /><stop offset="55%" stop-color="rgba(0,0,0,0.8)" /><stop offset="100%" stop-color="rgba(0,0,0,0)" />
+                  </linearGradient>
+              </defs>
+              <g id="brain-bases">
+                  <path class="brain-base left" d="M 395, 100 C 200, 100 50, 250 50, 450 C 50, 650 180, 750 320, 750 C 380, 750 395, 700 395, 650 Z"/>
+                  <path class="brain-base right" d="M 405, 100 C 600, 100 750, 250 750, 450 C 750, 650 620, 750 480, 750 C 420, 750 405, 700 405, 650 Z"/>
+              </g>
+              <g id="left-wrinkles"></g>
+              <g id="right-wrinkles"></g>
+              <g id="left-network"></g>
+              <g id="right-circuits"></g>
+              <rect x="380" y="80" width="40" height="690" fill="url(#fissure-shadow)" />
+          </svg>
+      </div>
+  </div>
 
   <div class="screen active" id="screen-0">
-      <div class="intro-slide active" id="slide-1">
-          <div id="particles-container" style="position: absolute; width: 100%; height: 100%; top:0; left:0; z-index: 0;"></div>
-          
-          <div style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; animation: breathe 6s ease-in-out infinite;">
-              <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" id="brain-svg-c1" style="width: 900px; height: 900px; filter: drop-shadow(0 0 40px rgba(0,0,0,0.8));">
-                  <defs>
-                      <filter id="glow-pink" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
-                      <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
-                      <linearGradient id="fissure-shadow" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stop-color="rgba(0,0,0,0)" /><stop offset="45%" stop-color="rgba(0,0,0,0.8)" /><stop offset="50%" stop-color="rgba(0,0,0,1)" /><stop offset="55%" stop-color="rgba(0,0,0,0.8)" /><stop offset="100%" stop-color="rgba(0,0,0,0)" />
-                      </linearGradient>
-                  </defs>
-                  <g id="brain-bases">
-                      <path class="brain-base left" d="M 395, 100 C 200, 100 50, 250 50, 450 C 50, 650 180, 750 320, 750 C 380, 750 395, 700 395, 650 Z"/>
-                      <path class="brain-base right" d="M 405, 100 C 600, 100 750, 250 750, 450 C 750, 650 620, 750 480, 750 C 420, 750 405, 700 405, 650 Z"/>
-                  </g>
-                  <g id="left-wrinkles"></g>
-                  <g id="right-wrinkles"></g>
-                  <g id="left-network"></g>
-                  <g id="right-circuits"></g>
-                  <rect x="380" y="80" width="40" height="690" fill="url(#fissure-shadow)" />
-              </svg>
-          </div>
-
-          <div style="z-index: 10; text-align: center; margin-top: auto; margin-bottom: 250px;">
-              <div class="c1-brand">STAARTPRIME</div>
+      <div class="intro-slide active" id="slide-1" style="z-index: 10;">
+          <div style="text-align: center; margin-top: auto; margin-bottom: 20vh;">
               <div class="c1-title">DHA-ARA<br>MIND MATCH</div>
-              <div class="c1-sub">THE HCP PUZZLE CHALLENGE</div>
-              <button class="c1-btn" onclick="startChallenge()">Start Sequence</button>
+              <button class="c1-btn" onclick="startChallenge()">Start Game</button>
           </div>
       </div>
   </div>
@@ -178,7 +192,7 @@
     <div class="hud-bar sketchy-box">
       <div class="hud-badge">🧩 Level 1</div>
       <div class="hud-timer" id="timer-1">⏱ 00:00</div>
-      <div class="hud-score">Pts: <span id="score-1">0</span></div>
+      <div class="hud-score">Score: <span id="score-1">0</span></div>
     </div>
     
     <div class="level-title">KNOW THE NUTRIENTS</div>
@@ -194,9 +208,9 @@
     </div>
     
     <div class="success-wrap" id="success-1">
-      <div style="font-size: 80px; font-weight: bold; color: #86EFAC; margin-bottom: 20px;">Great Start!</div>
-      <div style="font-size: 45px; color: #F1F5F9; margin-bottom: 40px;">You've decoded DHA and ARA.</div>
-      <button class="c4-btn sketchy-box" style="margin-top: 20px; padding: 30px; font-size: 50px;" onclick="startLevel(2)">Next Challenge</button>
+      <div style="font-size: clamp(30px, 8vw, 80px); font-weight: bold; color: #86EFAC; margin-bottom: 1vh;">Great Start!</div>
+      <div style="font-size: clamp(16px, 4vw, 45px); color: #F1F5F9; margin-bottom: 2vh;">You've decoded DHA and ARA.</div>
+      <button class="c4-btn sketchy-box" onclick="startLevel(2)">Next Challenge</button>
     </div>
   </div>
 
@@ -204,30 +218,30 @@
     <div class="hud-bar sketchy-box">
       <div class="hud-badge">🧩 Level 2</div>
       <div class="hud-timer" id="timer-2">⏱ 00:00</div>
-      <div class="hud-score">Pts: <span id="score-2">0</span></div>
+      <div class="hud-score">Score: <span id="score-2">0</span></div>
     </div>
     
     <div class="level-title">FIND THE CONNECTION</div>
     <div class="level-sub">Where are DHA and ARA naturally present?</div>
     
     <div class="game-area">
-      <div style="display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 60px;">
+      <div style="display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 2vh;">
         <div class="l2-static bg-dha sketchy-box dha">DHA</div>
         <div class="l2-center-drop dropzone sketchy-box-dashed" data-accept="milk" id="dz-2-milk">?</div>
         <div class="l2-static bg-ara sketchy-box ara">ARA</div>
       </div>
       
       <div class="tray" id="tray-2">
-        <div class="card-drag sketchy-box draggable" data-id="wrong1"><div style="font-size:100px; margin-bottom:20px;">🌿</div><span style="font-size: 35px; font-weight:bold;">Plant oils</span></div>
-        <div class="card-drag sketchy-box draggable" data-id="milk"><div style="font-size:100px; margin-bottom:20px;">🤱</div><span style="font-size: 35px; font-weight:bold;">Human milk</span></div>
-        <div class="card-drag sketchy-box draggable" data-id="wrong2"><div style="font-size:100px; margin-bottom:20px;">🐟</div><span style="font-size: 35px; font-weight:bold;">Marine</span></div>
-        <div class="card-drag sketchy-box draggable" data-id="wrong3"><div style="font-size:100px; margin-bottom:20px;">🥚</div><span style="font-size: 35px; font-weight:bold;">Dairy</span></div>
+        <div class="card-drag sketchy-box draggable" data-id="wrong1"><div style="font-size:clamp(40px, 10vw, 100px); margin-bottom:1vh;">🌿</div><span style="font-size: clamp(16px, 3.5vw, 35px); font-weight:bold;">Plant oils</span></div>
+        <div class="card-drag sketchy-box draggable" data-id="wrong2"><div style="font-size:clamp(40px, 10vw, 100px); margin-bottom:1vh;">🐟</div><span style="font-size: clamp(16px, 3.5vw, 35px); font-weight:bold;">Marine</span></div>
+        <div class="card-drag sketchy-box draggable" data-id="milk"><div style="font-size:clamp(40px, 10vw, 100px); margin-bottom:1vh;">🤱</div><span style="font-size: clamp(16px, 3.5vw, 35px); font-weight:bold;">Human milk</span></div>
+        <div class="card-drag sketchy-box draggable" data-id="wrong3"><div style="font-size:clamp(40px, 10vw, 100px); margin-bottom:1vh;">🥚</div><span style="font-size: clamp(16px, 3.5vw, 35px); font-weight:bold;">Dairy</span></div>
       </div>
     </div>
     
     <div class="success-wrap" id="success-2">
-      <div style="font-size: 80px; font-weight: bold; color: #86EFAC; margin-bottom: 20px;">Perfect Match!</div>
-      <button class="c4-btn sketchy-box" style="margin-top: 20px; padding: 30px; font-size: 50px;" onclick="startLevel(3)">Final Challenge</button>
+      <div style="font-size: clamp(30px, 8vw, 80px); font-weight: bold; color: #86EFAC; margin-bottom: 2vh;">Perfect Match!</div>
+      <button class="c4-btn sketchy-box" onclick="startLevel(3)">Next Challenge</button>
     </div>
   </div>
 
@@ -235,7 +249,7 @@
     <div class="hud-bar sketchy-box">
       <div class="hud-badge">🧩 Level 3</div>
       <div class="hud-timer" id="timer-3">⏱ 00:00</div>
-      <div class="hud-score">Pts: <span id="score-3">0</span></div>
+      <div class="hud-score">Score: <span id="score-3">0</span></div>
     </div>
     
     <div class="level-title">MATCH THE FUNCTION</div>
@@ -245,55 +259,45 @@
       <div class="l3-row" id="hub-row-dha">
         <div class="l3-hub bg-dha sketchy-box">DHA</div>
         <div class="l3-slots">
-          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="dha">Brain Function</div>
-          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="dha">Visual Function</div>
+          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="dha"></div>
+          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="dha"></div>
         </div>
       </div>
       
       <div class="l3-row" id="hub-row-ara">
         <div class="l3-hub bg-ara sketchy-box">ARA</div>
         <div class="l3-slots">
-          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="ara">Cell Membrane</div>
-          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="ara">Immune Function</div>
+          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="ara"></div>
+          <div class="l3-dropzone dropzone sketchy-box-dashed" data-accept="ara"></div>
         </div>
       </div>
       
-      <div class="tray" id="tray-3" style="gap: 20px;">
-        <div class="card-drag sketchy-box draggable" data-id="dha" style="width: 480px; height: 140px; flex-direction: row; gap: 20px;"><div style="font-size:60px;">🧠</div><span style="font-size: 35px; font-weight:bold; text-align:left;">Brain & visual dev</span></div>
-        <div class="card-drag sketchy-box draggable" data-id="dha" style="width: 480px; height: 140px; flex-direction: row; gap: 20px;"><div style="font-size:60px;">👁️</div><span style="font-size: 35px; font-weight:bold; text-align:left;">Visual dev</span></div>
-        <div class="card-drag sketchy-box draggable" data-id="ara" style="width: 480px; height: 140px; flex-direction: row; gap: 20px;"><div style="font-size:60px;">⚙️</div><span style="font-size: 35px; font-weight:bold; text-align:left;">Cell membrane</span></div>
-        <div class="card-drag sketchy-box draggable" data-id="ara" style="width: 480px; height: 140px; flex-direction: row; gap: 20px;"><div style="font-size:60px;">🛡️</div><span style="font-size: 35px; font-weight:bold; text-align:left;">Immune function</span></div>
+      <div class="tray" id="tray-3">
+        <div class="card-drag sketchy-box draggable card-drag-l3" data-id="ara"><div style="font-size:clamp(20px, 6vw, 60px);">⚙️</div><span style="font-size: clamp(14px, 3vw, 35px); font-weight:bold; text-align:left;">Cell membrane</span></div>
+        <div class="card-drag sketchy-box draggable card-drag-l3" data-id="dha"><div style="font-size:clamp(20px, 6vw, 60px);">👁️</div><span style="font-size: clamp(14px, 3vw, 35px); font-weight:bold; text-align:left;">Visual Function</span></div>
+        <div class="card-drag sketchy-box draggable card-drag-l3" data-id="ara"><div style="font-size:clamp(20px, 6vw, 60px);">🛡️</div><span style="font-size: clamp(14px, 3vw, 35px); font-weight:bold; text-align:left;">Immune function</span></div>
+        <div class="card-drag sketchy-box draggable card-drag-l3" data-id="dha"><div style="font-size:clamp(20px, 6vw, 60px);">🧠</div><span style="font-size: clamp(14px, 3vw, 35px); font-weight:bold; text-align:left;">Brain Function</span></div>
       </div>
     </div>
     
     <div class="success-wrap" id="success-3">
-      <div style="font-size: 80px; font-weight: bold; color: #86EFAC; margin-bottom: 20px;">Mind Master!</div>
-      <button class="c4-btn sketchy-box" style="margin-top: 20px; padding: 30px; font-size: 50px;" onclick="finishQuiz()">Reveal The Story</button>
+      <div style="font-size: clamp(30px, 8vw, 80px); font-weight: bold; color: #86EFAC; margin-bottom: 2vh;">Mind Master!</div>
+      <button class="c4-btn sketchy-box" onclick="finishQuiz()">Reveal The Story</button>
     </div>
   </div>
 
-  <div class="game-screen" id="screen-4">
-    <div style="font-size: 130px; font-weight: bold; color: #FFFFFF; margin-bottom: 20px;">You Did It!</div>
-    <div style="font-size: 60px; color: #BAE6FD; margin-bottom: 60px;">THE COMPLETE PICTURE</div>
+  <div class="game-screen" id="screen-4" style="justify-content: center; overflow-y: auto; background: #F4F9FF;">
     
-    <svg width="700" height="700" viewBox="0 0 400 500" style="margin-bottom: 40px; overflow: visible;">
-        <path d="M 190 40 C 100 30, 20 120, 30 280 C 35 400, 100 470, 180 460 C 195 450, 190 200, 190 40 Z" fill="#BAE6FD" stroke="#2563EB" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M 210 40 C 300 30, 380 120, 370 280 C 365 400, 300 470, 220 460 C 205 450, 210 200, 210 40 Z" fill="#FBCFE8" stroke="#DB2777" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M 190 120 Q 120 100, 70 170 T 90 270" fill="none" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
-        <path d="M 210 120 Q 280 100, 330 170 T 310 270" fill="none" stroke="#EC4899" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
-        <path d="M 170 150 L 230 150 M 180 250 L 220 250 M 170 350 L 230 350" stroke="#1E293B" stroke-width="6" stroke-dasharray="8 12" stroke-linecap="round"/>
-        <text x="110" y="260" font-family="'Patrick Hand', cursive" font-size="60" font-weight="bold" fill="#1E293B">DHA</text>
-        <text x="230" y="260" font-family="'Patrick Hand', cursive" font-size="60" font-weight="bold" fill="#1E293B">ARA</text>
-    </svg>
-    
-    <div style="font-size: 65px; font-weight: bold; color: #F1F5F9; margin-bottom: 60px;">Naturally present together in human milk.</div>
-    
-    <div class="sketchy-box" style="padding: 60px; width: 100%; background: #ECFCCB; border-color: #4D7C0F;">
-      <div style="font-size: 60px; font-weight: bold; color: #166534;">DHA-ARA Mind Master!</div>
-      <div style="font-size: 140px; font-weight: bold; color: #15803D; margin-top: 20px;" id="final-score-display">0 / 100</div>
+    <!-- Final results card with updated text -->
+    <div style="text-align: center; margin-bottom: 4vh; font-family: 'Plus Jakarta Sans', sans-serif;">
+      <div style="font-size: clamp(20px, 5vw, 55px); font-weight: 800; color: #203B82;">Congratulations!</div>
+      <div style="font-size: clamp(16px, 4vw, 40px); font-weight: 600; color: #475569;">You are a DHA-ARA Mind Master!</div>
+      <div style="font-size: clamp(18px, 4vw, 38px); font-weight: 700; color: #0F172A; margin-top: 2vh;">Naturally present together in human milk.</div>
+      <div style="font-size: clamp(60px, 15vw, 160px); font-weight: 900; color: #16A34A; margin-top: 1vh; line-height: 1;" id="final-score-display">0 / 100</div>
     </div>
     
-    <button class="c4-btn sketchy-box" onclick="location.reload()">Play Again</button>
+    <!-- Styled button -->
+    <button class="c4-btn" style="background: #203B82; color: white; border: none; border-radius: clamp(20px, 5vw, 50px); box-shadow: 0px 10px 20px rgba(32, 59, 130, 0.2); font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(18px, 4vw, 45px); padding: clamp(15px, 3vh, 30px) clamp(30px, 6vw, 80px); width: auto; max-width: 90%; margin-top: 0;" onclick="location.reload()">Close & Take Learning Further</button>
   </div>
 
 </div> 
@@ -303,17 +307,6 @@
 <script>
 (function () {
   'use strict';
-
-  window.kioskScale = 1;
-  function scaleKiosk() {
-      const app = document.getElementById('kiosk-app');
-      const scaleX = window.innerWidth / 1080;
-      const scaleY = window.innerHeight / 1920;
-      window.kioskScale = Math.min(scaleX, scaleY);
-      app.style.transform = `scale(${window.kioskScale})`;
-  }
-  window.addEventListener('resize', scaleKiosk);
-  scaleKiosk(); 
 
   function initConcept1Animation() {
       const svgNS = "http://www.w3.org/2000/svg";
@@ -340,7 +333,7 @@
           let rx = rand(420, 700), ry = rand(150, 700);
           if(isInsideRightBrain(rx, ry)) {
               let path = document.createElementNS(svgNS, 'path');
-              path.setAttribute('d', `M ${rx},${ry} Q ${rx + rand(-40, 40)},${ry + rand(-40, 40)} ${rx + rand(-30, 30)},${ry + rand(20, 60)} T ${rx + rand(-40, 40)},${ry + rand(60, 100)}`);
+              path.setAttribute('d', `M ${rx},${ry} Q ${rx + rand(-40, 40)},${rx + rand(-40, 40)} ${rx + rand(-30, 30)},${rx + rand(20, 60)} T ${rx + rand(-40, 40)},${rx + rand(60, 100)}`);
               path.setAttribute('class', 'wrinkle right');
               rightWrinkles.appendChild(path);
           }
@@ -438,6 +431,14 @@
     } catch (e) {}
   }
 
+  function speakLevelComplete(level) {
+    if ('speechSynthesis' in window) {
+      var msg = new SpeechSynthesisUtterance('Level ' + level + ' completed');
+      msg.rate = 1;
+      window.speechSynthesis.speak(msg);
+    }
+  }
+
   function showToast() {
     var toast = document.getElementById('error-toast');
     if (!toast) return;
@@ -477,6 +478,13 @@
     document.querySelectorAll('.screen, .game-screen').forEach(function (screen) { screen.classList.remove('active'); });
     var targetScreen = document.getElementById('screen-' + index);
     if (targetScreen) targetScreen.classList.add('active');
+
+    var app = document.getElementById('kiosk-app');
+    if (index === 0) {
+        app.classList.add('concept1');
+    } else {
+        app.classList.remove('concept1');
+    }
   }
 
   window.startChallenge = function() {
@@ -492,7 +500,7 @@
   window.finishQuiz = function() {
     stopTimer();
     var finalScore = document.getElementById('final-score-display');
-    if (finalScore) finalScore.innerText = score + ' / 100';
+    if (finalScore) finalScore.innerText = Math.max(0, score) + ' / 100';
     showScreen(4); playSound('game-complete'); fireConfetti();
   };
 
@@ -522,8 +530,8 @@
         event.preventDefault();
         var pointer = event.type.indexOf('mouse') !== -1 ? event : event.touches[0];
         
-        var dx = (pointer.clientX - startX) / window.kioskScale;
-        var dy = (pointer.clientY - startY) / window.kioskScale;
+        var dx = pointer.clientX - startX;
+        var dy = pointer.clientY - startY;
         
         translateX += dx;
         translateY += dy;
@@ -538,7 +546,10 @@
         if (!isDragging) return;
         isDragging = false; element.style.zIndex = '10';
         
-        var rect = element.getBoundingClientRect(), centerX = rect.left + rect.width / 2, centerY = rect.top + rect.height / 2, droppedOnTarget = null;
+        var rect = element.getBoundingClientRect();
+        var centerX = rect.left + rect.width / 2;
+        var centerY = rect.top + rect.height / 2; 
+        var droppedOnTarget = null;
         
         targets.forEach(function (target) {
           var targetRect = target.getBoundingClientRect();
@@ -568,13 +579,19 @@
               stopTimer();
               var success = document.getElementById('success-' + level);
               if (success) success.classList.add('show');
-              setTimeout(function() { playSound('level-complete'); }, 300);
+              setTimeout(function() { 
+                  playSound('level-complete'); 
+                  speakLevelComplete(level);
+              }, 300);
               fireConfetti();
             }
             return;
           }
 
-          playSound('error'); showToast();
+          playSound('error'); 
+          showToast();
+          updateScore(-5);
+          
           if (level === 1) {
             var rightTargetInner = droppedOnTarget.querySelector('.puz-right');
             if (rightTargetInner) { rightTargetInner.classList.add('error-flash'); setTimeout(function () { rightTargetInner.classList.remove('error-flash'); }, 600); }
